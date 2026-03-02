@@ -3,59 +3,60 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Max & Leo</title>
-  
-<style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  <title>Max &amp; Leo</title>
 
-    /* ✅ Image de fond */
-    background-image: url("assets/background2.jpeg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
-  /* ✅ Voile sombre pour garder la lisibilité */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: 0;
-  }
+      /* Valeur par défaut (sera remplacée par JS) */
+      background-image: url("assets/background2.jpeg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
 
-  .wrap {
-    position: relative;
-    z-index: 1;
+    /* ✅ Voile sombre pour garder la lisibilité */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 0;
+    }
 
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    text-align: center;
-    color: white;
-  }
+    .wrap {
+      position: relative;
+      z-index: 1;
 
-  h1 {
-    font-size: 52px;
-    font-weight: 900;
-    margin: 0;
-  }
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      text-align: center;
+      color: white;
+      padding: 24px;
+    }
 
-  button {
-    font-size: 22px;
-    font-weight: 900;
-    padding: 16px 28px;
-    border-radius: 16px;
-    border: none;
-    cursor: pointer;
-  }
-</style>
+    h1 {
+      font-size: 52px;
+      font-weight: 900;
+      margin: 0;
+    }
+
+    button {
+      font-size: 22px;
+      font-weight: 900;
+      padding: 16px 28px;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
@@ -65,44 +66,82 @@
     <button id="pause" style="display:none;">⏸ Pause</button>
     <audio id="audio"></audio>
   </div>
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const track = params.get("track");
 
-  const audio = document.getElementById("audio");
-  const playBtn = document.getElementById("play");
-  const pauseBtn = document.getElementById("pause");
+  <script>
+    // --- Lecture du paramètre ?track=... ---
+    const params = new URLSearchParams(window.location.search);
+    const track = params.get("track"); // ex: 1965-love.mp3
+    // URLSearchParams.get() est la méthode standard pour récupérer les paramètres. [3](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 
-  if (!track) {
-    playBtn.textContent = "❌ piste manquante";
-    playBtn.disabled = true;
-  } else {
-    audio.src = "audio/" + track;
-  }
+    // --- Méthode B : mapping "ordre des chansons" -> "ordre des fonds" ---
+    const tracks = [
+      "1965-love.mp3",
+      "1966-california.mp3",
+      "1967-jackson.mp3",
+      "1968-vesoul.mp3",
+      "1969-champs.mp3",
+      "1970-cecilia.mp3",
+      "1971-benjamin.mp3",
+      "1972-histoire.mp3",
+      "1973-maladie.mp3",
+      "1975-run.mp3",
+    ];
 
-  // ▶ Play
-  playBtn.addEventListener("click", () => {
-    audio.play();
-    playBtn.style.display = "none";
-    pauseBtn.style.display = "inline-block";
-  });
+    // ⚠️ Remplace ces noms par TES 5 fichiers d'image réels dans /assets/
+    const backgrounds = [
+      "assets/background1.jpeg",
+      "assets/background2.jpeg",
+      "assets/background3.jpeg",
+      "assets/background4.jpeg",
+      "assets/background5.jpeg",
+    ];
 
-  // ⏸ Pause
-  pauseBtn.addEventListener("click", () => {
-    audio.pause();
-    pauseBtn.style.display = "none";
-    playBtn.textContent = "▶ Reprendre";
-    playBtn.style.display = "inline-block";
-  });
+    // Applique un background selon l'ordre (i % 5)
+    if (track) {
+      const i = tracks.indexOf(track);
+      if (i !== -1) {
+        document.body.style.backgroundImage = `url("${backgrounds[i % backgrounds.length]}")`;
+        // Changer backgroundImage via JS est la manière standard. [1](https://www.geeksforgeeks.org/javascript/how-to-change-background-image-in-javascript/)[2](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-image)
+      } else {
+        // Fallback si track pas dans la liste (garde background2 par défaut)
+        document.body.style.backgroundImage = `url("${backgrounds[1]}")`;
+      }
+    }
 
-  // Quand la musique se termine
-  audio.addEventListener("ended", () => {
-    pauseBtn.style.display = "none";
-    playBtn.textContent = "▶ Rejouer";
-    playBtn.style.display = "inline-block";
-    audio.currentTime = 0;
-  });
-</script>
+    // --- Player Play / Pause ---
+    const audio = document.getElementById("audio");
+    const playBtn = document.getElementById("play");
+    const pauseBtn = document.getElementById("pause");
 
+    if (!track) {
+      playBtn.textContent = "❌ piste manquante";
+      playBtn.disabled = true;
+    } else {
+      audio.src = "audio/" + track;
+    }
+
+    // ▶ Play
+    playBtn.addEventListener("click", () => {
+      audio.play();
+      playBtn.style.display = "none";
+      pauseBtn.style.display = "inline-block";
+    });
+
+    // ⏸ Pause
+    pauseBtn.addEventListener("click", () => {
+      audio.pause();
+      pauseBtn.style.display = "none";
+      playBtn.textContent = "▶ Reprendre";
+      playBtn.style.display = "inline-block";
+    });
+
+    // Fin de piste
+    audio.addEventListener("ended", () => {
+      pauseBtn.style.display = "none";
+      playBtn.textContent = "▶ Rejouer";
+      playBtn.style.display = "inline-block";
+      audio.currentTime = 0;
+    });
+  </script>
 </body>
 </html>
