@@ -23,14 +23,14 @@
       padding: 24px;
     }
     .label {
-      font-size: 46px;
+      font-size: 52px;
       font-weight: 900;
       letter-spacing: 0.5px;
     }
-    .hint {
-      opacity: 0.78;
+    .sub {
+      opacity: 0.75;
       font-size: 16px;
-      max-width: 520px;
+      max-width: 560px;
       line-height: 1.35;
     }
     .btn {
@@ -40,60 +40,64 @@
       color: #000;
       font-weight: 900;
       font-size: 18px;
-      padding: 16px 20px;
+      padding: 16px 22px;
       border-radius: 14px;
       cursor: pointer;
       display: none;
     }
     .btn:active { transform: scale(0.98); }
+
+    /* petit lecteur discret (optionnel) */
+    audio { width: min(520px, 92vw); display: none; }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="label">Max &amp; Leo</div>
-    <div id="hint" class="hint">Chargement…</div>
-    <button id="btn" class="btn">▶ Lancer</button>
+    <div id="msg" class="sub">Chargement…</div>
+    <button id="play" class="btn">▶ Lancer</button>
     <audio id="audio" preload="auto" playsinline></audio>
   </div>
 
-<script>
-  const qs = new URLSearchParams(location.search);
-  const fileId = qs.get("id");
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const fileId = qs.get("id"); // ex: ?id=1-z70dZo...
 
-  const hintEl = document.getElementById("hint");
-  const btn = document.getElementById("btn");
-  const audio = document.getElementById("audio");
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("play");
+    const audio = document.getElementById("audio");
 
-  if (!fileId) {
-    hintEl.textContent = "Erreur : il manque ?id= (l’ID du fichier Google Drive) dans l’URL.";
-    return;
-  }
-
-  // URL Drive "direct"
-  // Note : selon l'appareil, Drive peut parfois forcer un téléchargement.
-  // Si tu constates ça, je te donne une variante alternative juste après.
-  const mp3Url = "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(fileId);
-
-  audio.src = mp3Url;
-
-  async function tryPlay() {
-    try {
-      hintEl.textContent = "Lecture…";
-      await audio.play();
-      btn.style.display = "none";
-      hintEl.textContent = "▶ En lecture";
-    } catch (e) {
-      hintEl.textContent = "Appuie sur “Lancer” (certains téléphones bloquent l’auto‑lecture).";
-      btn.style.display = "inline-block";
+    if (!fileId) {
+      msg.textContent = "Erreur : il manque ?id= (ID Google Drive) dans l’URL.";
+      return;
     }
-  }
 
-  btn.addEventListener("click", () => {
-    btn.style.display = "none";
+    // 1) URL Drive (téléchargement direct). Souvent OK, mais si ça force un téléchargement
+    //    sur ton téléphone, dis-le moi : je te donnerai une variante plus compatible.
+    const mp3Url = "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(fileId);
+    audio.src = mp3Url;
+
+    async function tryPlay() {
+      try {
+        msg.textContent = "Lecture…";
+        await audio.play();
+        btn.style.display = "none";
+        msg.textContent = "▶ En lecture";
+      } catch (e) {
+        // Autoplay bloqué -> bouton
+        msg.textContent = "Appuie sur “Lancer” (certains téléphones bloquent l’auto‑lecture).";
+        btn.style.display = "inline-block";
+      }
+    }
+
+    btn.addEventListener("click", () => {
+      btn.style.display = "none";
+      tryPlay();
+    });
+
+    // tentative auto
     tryPlay();
-  });
-
-  tryPlay();
-</script>
+  </script>
 </body>
 </html>
