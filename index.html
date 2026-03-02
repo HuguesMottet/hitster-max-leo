@@ -44,25 +44,44 @@
     <button id="pause" style="display:none;">⏸ Pause</button>
     <audio id="audio"></audio>
   </div>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const track = params.get("track");
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const track = params.get("track");
+  const audio = document.getElementById("audio");
+  const playBtn = document.getElementById("play");
+  const pauseBtn = document.getElementById("pause");
 
-    const audio = document.getElementById("audio");
-    const button = document.getElementById("play");
+  if (!track) {
+    playBtn.textContent = "❌ piste manquante";
+    playBtn.disabled = true;
+  } else {
+    audio.src = "audio/" + track;
+  }
 
-    if (!track) {
-      button.textContent = "❌ piste manquante";
-      button.disabled = true;
-    } else {
-      audio.src = "audio/" + track;
-    }
+  // ▶ Play
+  playBtn.addEventListener("click", () => {
+    audio.play();
+    playBtn.style.display = "none";
+    pauseBtn.style.display = "inline-block";
+  });
 
-    button.addEventListener("click", () => {
-      audio.play();
-      button.style.display = "none";
-    });
-  </script>
+  // ⏸ Pause
+  pauseBtn.addEventListener("click", () => {
+    audio.pause();
+    pauseBtn.style.display = "none";
+    playBtn.textContent = "▶ Reprendre";
+    playBtn.style.display = "inline-block";
+  });
+
+  // Quand la musique se termine
+  audio.addEventListener("ended", () => {
+    pauseBtn.style.display = "none";
+    playBtn.textContent = "▶ Rejouer";
+    playBtn.style.display = "inline-block";
+    audio.currentTime = 0;
+  });
+</script>
+
 </body>
 </html>
