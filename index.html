@@ -2,102 +2,66 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Max & Leo</title>
   <style>
     html, body {
       height: 100%;
       margin: 0;
-      background: #000;
-      color: #fff;
+      background: black;
+      color: white;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
     .wrap {
       height: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      gap: 22px;
+      gap: 24px;
       text-align: center;
-      padding: 24px;
     }
-    .label {
+    h1 {
       font-size: 52px;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      margin: 0;
     }
-    .sub {
-      opacity: 0.75;
-      font-size: 16px;
-      max-width: 560px;
-      line-height: 1.35;
-    }
-    .btn {
-      appearance: none;
-      border: 0;
-      background: #fff;
-      color: #000;
+    button {
+      font-size: 22px;
       font-weight: 900;
-      font-size: 18px;
-      padding: 16px 22px;
-      border-radius: 14px;
+      padding: 16px 28px;
+      border-radius: 16px;
+      border: none;
       cursor: pointer;
-      display: none;
     }
-    .btn:active { transform: scale(0.98); }
-
-    /* petit lecteur discret (optionnel) */
-    audio { width: min(520px, 92vw); display: none; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="label">Max &amp; Leo</div>
-    <div id="msg" class="sub">Chargement…</div>
-    <button id="play" class="btn">▶ Lancer</button>
-    <audio id="audio" preload="auto" playsinline></audio>
+    <h1>Max &amp; Leo</h1>
+    <button id="play">▶ Lancer la musique</button>
+    <audio id="audio"></audio>
   </div>
 
   <script>
-    const qs = new URLSearchParams(location.search);
-    const fileId = qs.get("id"); // ex: ?id=1-z70dZo...
+    const params = new URLSearchParams(window.location.search);
+    const track = params.get("track");
 
-    const msg = document.getElementById("msg");
-    const btn = document.getElementById("play");
     const audio = document.getElementById("audio");
+    const button = document.getElementById("play");
 
-    if (!fileId) {
-      msg.textContent = "Erreur : il manque ?id= (ID Google Drive) dans l’URL.";
-      return;
+    if (!track) {
+      button.textContent = "❌ piste manquante";
+      button.disabled = true;
+    } else {
+      audio.src = "audio/" + track;
     }
 
-    // 1) URL Drive (téléchargement direct). Souvent OK, mais si ça force un téléchargement
-    //    sur ton téléphone, dis-le moi : je te donnerai une variante plus compatible.
-    const mp3Url = "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(fileId);
-    audio.src = mp3Url;
-
-    async function tryPlay() {
-      try {
-        msg.textContent = "Lecture…";
-        await audio.play();
-        btn.style.display = "none";
-        msg.textContent = "▶ En lecture";
-      } catch (e) {
-        // Autoplay bloqué -> bouton
-        msg.textContent = "Appuie sur “Lancer” (certains téléphones bloquent l’auto‑lecture).";
-        btn.style.display = "inline-block";
-      }
-    }
-
-    btn.addEventListener("click", () => {
-      btn.style.display = "none";
-      tryPlay();
+    button.addEventListener("click", () => {
+      audio.play();
+      button.style.display = "none";
     });
-
-    // tentative auto
-    tryPlay();
   </script>
 </body>
 </html>
