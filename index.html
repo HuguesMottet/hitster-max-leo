@@ -62,9 +62,11 @@
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    
+
+    const autoplay = params.get("autoplay") === "1";
     const id = parseInt(params.get("id"), 10);
-    // mapping id -> fichier
+
+    // ✅ Un seul tableau tracks (utilisé pour mapping + index + background)
     const tracks = [
       "1965-love.mp3",
       "1966-california.mp3",
@@ -78,26 +80,24 @@
       "1975-run.mp3",
     ];
 
-const track = Number.isInteger(id) ? tracks[id] : null;
+    // ✅ Track calculé proprement + vérification bornes
+    const track = Number.isInteger(id) && id >= 0 && id < tracks.length ? tracks[id] : null;
 
-    
-    const autoplay = params.get("autoplay") === "1";
-
-    // ✅ Masquer l’URL le plus tôt possible (et garder le slash final)
+    // ✅ Masquer l’URL (retire ?id=...&autoplay=...)
     if (window.history.replaceState) {
       const cleanUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    const tracks = [
-      "1965-love.mp3","1966-california.mp3","1967-jackson.mp3","1968-vesoul.mp3","1969-champs.mp3",
-      "1970-cecilia.mp3","1971-benjamin.mp3","1972-histoire.mp3","1973-maladie.mp3","1975-run.mp3",
-    ];
-
     const backgrounds = [
-      "assets/background1.jpeg","assets/background2.jpeg","assets/background3.jpeg","assets/background4.jpeg","assets/background5.jpeg",
+      "assets/background1.jpeg",
+      "assets/background2.jpeg",
+      "assets/background3.jpeg",
+      "assets/background4.jpeg",
+      "assets/background5.jpeg",
     ];
 
+    // Background selon l'ordre des pistes
     if (track) {
       const i = tracks.indexOf(track);
       document.body.style.backgroundImage = `url("${i !== -1 ? backgrounds[i % backgrounds.length] : backgrounds[1]}")`;
@@ -112,6 +112,7 @@ const track = Number.isInteger(id) ? tracks[id] : null;
       playBtn.disabled = true;
     } else {
       audio.src = "audio/" + track;
+      audio.preload = "auto";
     }
 
     async function tryAutoplay() {
@@ -120,20 +121,29 @@ const track = Number.isInteger(id) ? tracks[id] : null;
         playBtn.style.display = "none";
         pauseBtn.style.display = "inline-block";
       } catch (e) {
+        // Autoplay souvent bloqué sur mobile sans interaction
         playBtn.textContent = "▶ Lancer la musique";
         playBtn.style.display = "inline-block";
         pauseBtn.style.display = "none";
+        console.log("Autoplay bloqué:", e);
       }
     }
 
     if (track && autoplay) tryAutoplay();
 
-    playBtn.addEventListener("click", () => {
-      audio.play();
-      playBtn.style.display = "none";
-      pauseBtn.style.display = "inline-block";
+    // ▶ Play (robuste)
+    playBtn.addEventListener("click", async () => {
+      try {
+        await audio.play();
+        playBtn.style.display = "none";
+        pauseBtn.style.display = "inline-block";
+      } catch (e) {
+        console.log("Play bloqué/échoué:", e);
+        playBtn.textContent = "❌ Impossible de lire";
+      }
     });
 
+    // ⏸ Pause
     pauseBtn.addEventListener("click", () => {
       audio.pause();
       pauseBtn.style.display = "none";
@@ -141,6 +151,7 @@ const track = Number.isInteger(id) ? tracks[id] : null;
       playBtn.style.display = "inline-block";
     });
 
+    // Fin de piste
     audio.addEventListener("ended", () => {
       pauseBtn.style.display = "none";
       playBtn.textContent = "▶ Rejouer";
