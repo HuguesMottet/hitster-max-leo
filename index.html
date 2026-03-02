@@ -120,6 +120,26 @@
       audio.src = "audio/" + track;
     }
 
+    // --- Autoplay optionnel via &autoplay=1 ---
+const autoplay = params.get("autoplay") === "1";
+
+async function tryAutoplay() {
+  try {
+    await audio.play();
+    playBtn.style.display = "none";
+    pauseBtn.style.display = "inline-block";
+  } catch (e) {
+    // Autoplay bloqué (souvent sur mobile tant qu'il n'y a pas d'interaction)
+    playBtn.textContent = "▶ Lancer la musique";
+    playBtn.style.display = "inline-block";
+    pauseBtn.style.display = "none";
+  }
+}
+
+if (track && autoplay) {
+  tryAutoplay();
+}
+
     // ▶ Play
     playBtn.addEventListener("click", () => {
       audio.play();
