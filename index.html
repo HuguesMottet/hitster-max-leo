@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Max & Leo</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .wrap {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 22px;
+      text-align: center;
+      padding: 24px;
+    }
+    .label {
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+    .hint {
+      opacity: 0.78;
+      font-size: 16px;
+      max-width: 520px;
+      line-height: 1.35;
+    }
+    .btn {
+      appearance: none;
+      border: 0;
+      background: #fff;
+      color: #000;
+      font-weight: 900;
+      font-size: 18px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: none;
+    }
+    .btn:active { transform: scale(0.98); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="label">Max &amp; Leo</div>
+    <div id="hint" class="hint">Chargement…</div>
+    <button id="btn" class="btn">▶ Lancer</button>
+    <audio id="audio" preload="auto" playsinline></audio>
+  </div>
+
+<script>
+  const qs = new URLSearchParams(location.search);
+  const fileId = qs.get("id");
+
+  const hintEl = document.getElementById("hint");
+  const btn = document.getElementById("btn");
+  const audio = document.getElementById("audio");
+
+  if (!fileId) {
+    hintEl.textContent = "Erreur : il manque ?id= (l’ID du fichier Google Drive) dans l’URL.";
+    return;
+  }
+
+  // URL Drive "direct"
+  // Note : selon l'appareil, Drive peut parfois forcer un téléchargement.
+  // Si tu constates ça, je te donne une variante alternative juste après.
+  const mp3Url = "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(fileId);
+
+  audio.src = mp3Url;
+
+  async function tryPlay() {
+    try {
+      hintEl.textContent = "Lecture…";
+      await audio.play();
+      btn.style.display = "none";
+      hintEl.textContent = "▶ En lecture";
+    } catch (e) {
+      hintEl.textContent = "Appuie sur “Lancer” (certains téléphones bloquent l’auto‑lecture).";
+      btn.style.display = "inline-block";
+    }
+  }
+
+  btn.addEventListener("click", () => {
+    btn.style.display = "none";
+    tryPlay();
+  });
+
+  tryPlay();
+</script>
+</body>
+</html>
