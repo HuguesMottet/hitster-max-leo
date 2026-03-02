@@ -62,7 +62,25 @@
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const track = params.get("track");
+    
+    const id = parseInt(params.get("id"), 10);
+    // mapping id -> fichier
+    const tracks = [
+      "1965-love.mp3",
+      "1966-california.mp3",
+      "1967-jackson.mp3",
+      "1968-vesoul.mp3",
+      "1969-champs.mp3",
+      "1970-cecilia.mp3",
+      "1971-benjamin.mp3",
+      "1972-histoire.mp3",
+      "1973-maladie.mp3",
+      "1975-run.mp3",
+    ];
+
+const track = Number.isInteger(id) ? tracks[id] : null;
+
+    
     const autoplay = params.get("autoplay") === "1";
 
     // ✅ Masquer l’URL le plus tôt possible (et garder le slash final)
