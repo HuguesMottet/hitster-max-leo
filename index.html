@@ -162,6 +162,12 @@ if (track && autoplay) {
       playBtn.style.display = "inline-block";
       audio.currentTime = 0;
     });
+
+    // --- Masquer l'URL (retire ?track=...&autoplay=...) ---
+if (window.history.replaceState) {
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+    
   </script>
 </body>
 </html>
