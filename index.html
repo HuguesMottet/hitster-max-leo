@@ -87,7 +87,8 @@
     // -------------------------
     const params = new URLSearchParams(window.location.search);
     const autoplay = params.get("autoplay") === "1";
-    const id = parseInt(params.get("id"), 65);
+    const rawId = params.get("id");
+    const id = Number.isInteger(Number(rawId)) ? Number(rawId) : null;
 
     // -------------------------
     // Mapping id -> track
